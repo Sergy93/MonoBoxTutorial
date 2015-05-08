@@ -19,19 +19,35 @@ namespace MonoBoxTutorial
         GraphicsDeviceManager GraphicsManager;
         SpriteBatch SpriteBatch;
 
-        Sprite CharacterSprite = new Sprite("SquareGuy");
+        private Sprite MainCharacter;
 
-        Rectangle Size;
-        float Scale = 1.0f;
+        KeyValuePair<String, Sprite>
+            mBackgroundOne,
+            mBackgroundTwo,
+            mBackgroundThree,
+            mBackgroundFour,
+            mBackgroundFive;
+
+
+        private Dictionary<String, Sprite> SpritesList = new Dictionary<String, Sprite>();
+        private Dictionary<String, Sprite> BackgroundElements = new Dictionary<String, Sprite>();
 
         public Game1()
         {
             GraphicsManager = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
         }
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+
+            mBackgroundOne = new KeyValuePair<string, Sprite>("Background01", new Sprite("Background01", 2.0f));
+            mBackgroundTwo = new KeyValuePair<string, Sprite>("Background02", new Sprite("Background02", 2.0f));
+            mBackgroundThree = new KeyValuePair<string, Sprite>("Background03", new Sprite("Background03", 2.0f));
+            mBackgroundFour = new KeyValuePair<string, Sprite>("Background04", new Sprite("Background04", 2.0f));
+            mBackgroundFive = new KeyValuePair<string, Sprite>("Background05", new Sprite("Background05", 2.0f));
+
+
 
             base.Initialize();
         }
@@ -42,9 +58,20 @@ namespace MonoBoxTutorial
 
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
-            CharacterSprite.LoadContent(Content);
+            SpritesList.Add("Character", MainCharacter = new Sprite("SquareGuy"));
 
-            Size = new Rectangle(0, 0, (int)(CharacterSprite.SpriteTexture.Width * Scale), (int)(CharacterSprite.SpriteTexture.Height * Scale));
+            mBackgroundOne.Position = new Vector2(0, 0);
+            mBackgroundTwo.Position = new Vector2(mBackgroundOne.Position.X + mBackgroundOne.Size.Width, 0);
+            mBackgroundThree.Position = new Vector2(mBackgroundTwo.Position.X + mBackgroundTwo.Size.Width, 0);
+            mBackgroundFour.Position = new Vector2(mBackgroundThree.Position.X + mBackgroundThree.Size.Width, 0);
+            mBackgroundFive.Position = new Vector2(mBackgroundFour.Position.X + mBackgroundFour.Size.Width, 0);
+
+
+
+            foreach (var entry in SpritesList)
+            {
+                entry.Value.LoadContent(Content);
+            }
 
         }
 
@@ -59,9 +86,45 @@ namespace MonoBoxTutorial
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 Exit();
 
-            CharacterSprite.Position = new Vector2(125, 250);
+
+
+            if (mBackgroundOne.Position.X < -mBackgroundOne.Size.Width)
+            {
+                mBackgroundFive.Position.X += mBackgroundFive.Size.Width;
+            }
+
+            if (mBackgroundTwo.Position.X < -mBackgroundTwo.Size.Width)
+            {
+                mBackgroundOne.Position.X += mBackgroundOne.Size.Width;
+            }
+
+            if (mBackgroundThree.Position.X < -mBackgroundThree.Size.Width)
+            {
+                mBackgroundTwo.Position.X += mBackgroundTwo.Size.Width;
+            }
+
+            if (mBackgroundFour.Position.X < -mBackgroundFour.Size.Width)
+            {
+                mBackgroundThree.Position.X += mBackgroundThree.Size.Width;
+            }
+
+            if (mBackgroundFive.Position.X < -mBackgroundFive.Size.Width)
+            {
+                mBackgroundFour.Position.X += mBackgroundFour.Size.Width;
+            }
+
+            var aDirection = new Vector2(-1, 0);
+            var aSpeed = new Vector2(160, 0);
+
+            mBackgroundOne.Position += aDirection * aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            mBackgroundTwo.Position += aDirection * aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            mBackgroundThree.Position += aDirection * aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            mBackgroundFour.Position += aDirection * aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            mBackgroundFive.Position += aDirection * aSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             base.Update(gameTime);
+
+
         }
 
         protected override void Draw(GameTime gameTime)
@@ -70,13 +133,11 @@ namespace MonoBoxTutorial
 
             SpriteBatch.Begin();
 
+            foreach (var entry in SpritesList)
+            {
+                entry.Value.Draw(SpriteBatch);
+            }
 
-            CharacterSprite.Draw(SpriteBatch);
-
-
-            SpriteBatch.Draw(CharacterSprite.SpriteTexture, CharacterSprite.Position,
-               new Rectangle(0, 0, CharacterSprite.SpriteTexture.Width, CharacterSprite.SpriteTexture.Height), Color.Transparent,
-               0.0f, Vector2.Zero, Scale, SpriteEffects.None, 0);
 
             SpriteBatch.End();
 
